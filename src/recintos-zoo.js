@@ -32,8 +32,13 @@ class RecintosZoo {
 
         const recintos = this.encontrarRecintoPeloBioma(animalHabilitado.bioma);
 
-        const resultadoEspacoAdequado = recintos
-            .map(recinto => this.verificarEspacoAdequado(recinto, animalHabilitado.tamanho, quantidade))
+        const animaisVariaveis = recintos.map(recinto => {
+            const espacoLivre = this.calcularEspacoLivre(recinto, animalHabilitado.nome);
+        return {... recinto, espacoLivre}
+    });
+
+        const resultadoEspacoAdequado = animaisVariaveis
+            .map(animaisVariaveis => this.verificarEspacoAdequado(animaisVariaveis, animalHabilitado.tamanho, quantidade))
             .filter(resultado => resultado !== null);
 
         const resultadoCarnivoro = this.verificarCarnivoro(resultadoEspacoAdequado, animalHabilitado.nome);
@@ -43,7 +48,7 @@ class RecintosZoo {
         if (resultadoMacaco.length > 0) {
             return {
                 recintosViaveis: resultadoMacaco.map(r =>
-                    `${r.nome} (espaço livre: ${this.calcularEspacoLivre(r, animalHabilitado.nome)} total: ${r.espaçoTotal})`
+                    `${r.nome} (espaço livre: ${r.espacoLivre} total: ${r.espaçoTotal})`
                 )
             };
         } else {
@@ -57,17 +62,24 @@ class RecintosZoo {
         );
     }
 
+    calcularEspacoLivre(recinto, nomeAnimal) {
+        const especiesDiferentes = recinto.tipoAnimais.some(animal => animal !== nomeAnimal);
+        const espacoExtra = especiesDiferentes ? 1 : 0;
+        return recinto.espacoLivre - espacoExtra;
+    }
+
 
     verificarEspacoAdequado(recinto, tamanho, quantidade) {
         const espacoNecessario = tamanho * quantidade;
         const espaco = recinto.espacoLivre
+
 
         if (espaco >= espacoNecessario) {
             return {
                 ...recinto,
                 espacoLivre: espaco - espacoNecessario
             };
-        }
+        } 
         return null;
     }
 
@@ -122,11 +134,7 @@ class RecintosZoo {
         });
     }
 
-    calcularEspacoLivre(recinto, nomeAnimal) {
-        const especiesDiferentes = recinto.tipoAnimais.some(animal => animal !== nomeAnimal);
-        const espacoExtra = especiesDiferentes ? 1 : 0;
-        return recinto.espacoLivre - espacoExtra;
-    }
+    
 
 
 
